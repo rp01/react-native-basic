@@ -1,70 +1,133 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { Image, StyleSheet, FlatList, View, Text, TouchableOpacity } from 'react-native';
 
 export default function HomeScreen() {
+  const [posts, setPosts] = useState([
+    { id: '1', user: 'User1', profilePic: 'https://randomuser.me/api/portraits/men/1.jpg', image: 'https://picsum.photos/400/400', caption: 'Cute kitten!', liked: false },
+    { id: '2', user: 'User2', profilePic: 'https://randomuser.me/api/portraits/women/2.jpg', image: 'https://picsum.photos/400/401', caption: 'Another cute kitten!', liked: false },
+    { id: '3', user: 'User3', profilePic: 'https://randomuser.me/api/portraits/men/3.jpg', image: 'https://picsum.photos/400/402', caption: 'Lovely day at the beach!', liked: false },
+    { id: '4', user: 'User4', profilePic: 'https://randomuser.me/api/portraits/women/4.jpg', image: 'https://picsum.photos/400/403', caption: 'Amazing sunset!', liked: false },
+    { id: '5', user: 'User5', profilePic: 'https://randomuser.me/api/portraits/men/5.jpg', image: 'https://picsum.photos/400/404', caption: 'Delicious food!', liked: false },
+    // { id: '6', user: 'User6', profilePic: 'https://randomuser.me/api/portraits/women/6.jpg', image: 'https://picsum.photos/400/405', caption: 'Great hike in the mountains!', liked: false },
+    // { id: '7', user: 'User7', profilePic: 'https://randomuser.me/api/portraits/men/7.jpg', image: 'https://picsum.photos/400/406', caption: 'City lights at night!', liked: false },
+    // { id: '8', user: 'User8', profilePic: 'https://randomuser.me/api/portraits/women/8.jpg', image: 'https://picsum.photos/400/407', caption: 'Lovely flowers in bloom!', liked: false },
+    // { id: '9', user: 'User9', profilePic: 'https://randomuser.me/api/portraits/men/9.jpg', image: 'https://picsum.photos/400/408', caption: 'Fun day with friends!', liked: false },
+    // { id: '10', user: 'User10', profilePic: 'https://randomuser.me/api/portraits/women/10.jpg', image: 'https://picsum.photos/400/409', caption: 'Exploring new places!', liked: false },
+    // { id: '11', user: 'User11', profilePic: 'https://randomuser.me/api/portraits/men/11.jpg', image: 'https://picsum.photos/400/410', caption: 'Quiet afternoon with a book!', liked: false },
+    // { id: '12', user: 'User12', profilePic: 'https://randomuser.me/api/portraits/women/12.jpg', image: 'https://picsum.photos/400/411', caption: 'Beautiful architecture!', liked: false },
+    // { id: '13', user: 'User13', profilePic: 'https://randomuser.me/api/portraits/men/13.jpg', image: 'https://picsum.photos/400/412', caption: 'Adorable puppies!', liked: false },
+    // { id: '14', user: 'User14', profilePic: 'https://randomuser.me/api/portraits/women/14.jpg', image: 'https://picsum.photos/400/413', caption: 'Peaceful nature walk!', liked: false },
+    // { id: '15', user: 'User15', profilePic: 'https://randomuser.me/api/portraits/men/15.jpg', image: 'https://picsum.photos/400/414', caption: 'Stunning landscape!', liked: false },
+  ]);
+
+  const handleLike = (postId: string) => {
+    setPosts(posts.map(post =>
+      post.id === postId ? { ...post, liked: !post.liked } : post
+    ));
+  };
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const savedPosts = await AsyncStorage.getItem('posts');
+        if (savedPosts !== null) {
+          setPosts(JSON.parse(savedPosts));
+        }
+      } catch (error) {
+        console.error('Failed to load posts', error);
+      }
+    };
+
+    loadPosts();
+  }, [])
+
+  useEffect(() => {
+    const savePosts = async () => {
+      try {
+        await AsyncStorage.setItem('posts', JSON.stringify(posts));
+      } catch (error) {
+        console.error('Failed to save posts', error);
+      }
+    };
+
+    savePosts();
+  }, [posts]);
+
+  // useEffect(() => {
+  //   axios.get('https://reqres.in/api/posts')
+  //     .then(response => setPosts(response.data.data)) // Adjust to the correct response structure
+  //     .catch(error => console.error(error));
+  // }, []);
+
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.post}>
+            <View style={styles.postHeader}>
+              <Image source={{ uri: item.profilePic }} style={styles.profilePic} />
+              <Text style={styles.user}>{item.user}</Text>
+            </View>
+            <Image source={{ uri: item.image }} style={styles.image} />
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => handleLike(item.id)}>
+                <Ionicons name={item.liked ? 'heart' : 'heart-outline'} size={30} color={item.liked ? 'red' : 'black'} />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="chatbubble-outline" size={30} color="black" style={styles.commentIcon} />
+
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.caption}><Text style={styles.user}>{item.user}</Text> {item.caption}</Text>
+          </View>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  post: {
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 10,
+  },
+  postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    padding: 10,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  profilePic: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  user: {
+    fontWeight: 'bold',
+  },
+  image: {
+    width: '100%',
+    height: 400,
+  },
+  actions: {
+    flexDirection: 'row',
+    padding: 10,
+  },
+  commentIcon: {
+    marginLeft: 15,
+  },
+  caption: {
+    padding: 10,
   },
 });
